@@ -1,7 +1,6 @@
 # Social Media MVP — Requirements Specification
 
-**Project:** Social Media MVP (X / Twitter Lite)  
-**Document status:** Draft  
+**Project:** Social Media MVP
 **Version:** 0.1
 
 ## 1. Purpose and scope
