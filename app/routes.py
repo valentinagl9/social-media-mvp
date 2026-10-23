@@ -89,3 +89,10 @@ def home():
         return redirect(url_for("main.login"))
 
     return render_template("home.html", username=session["username"])
+
+
+@main.route("/logout", methods=["POST"])
+def logout():
+    session.clear()
+    flash("You have been logged out.", "success")
+    return redirect(url_for("main.login"))

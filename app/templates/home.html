@@ -9,6 +9,9 @@
     <main>
         <h1>Welcome, {{ username }}!</h1>
         <p>You are logged in.</p>
+        <form method="post" action="{{ url_for('main.logout') }}">
+            <button type="submit">Log out</button>
+        </form>
     </main>
 </body>
 </html>
