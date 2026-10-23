@@ -2,33 +2,176 @@
 
 A lightweight social media web application developed for the Software Engineering Workshop assessment.
 
-The goal is to allow users to register, authenticate, publish text posts, and view a public feed ordered from newest to oldest.
-
-> **Project status:** Initial documentation and planning completed. Application implementation is in progress.
+Users can register, log in, publish text posts, and browse a public feed ordered from newest to oldest.
 
 ## Features
 
-The planned MVP includes:
-
-- User registration and login.
+- User registration, login, and logout.
 - Secure password hashing.
-- User logout and session management.
+- Session-based authentication.
 - Authenticated text-post creation.
-- A public feed displaying the author, content, and creation date of each post.
+- Public feed displaying post authors, content, and creation dates.
 - Newest-first feed ordering.
-- Persistent data storage across ordinary Docker restarts when the database volume is retained.
-- Automated tests and continuous integration.
+- SQLite data persistence.
+- Automated tests with pytest.
+- Continuous integration with GitHub Actions.
+- Docker and Docker Compose support.
 
 ## Technology Stack
 
-- Python
+- Python 3.12
 - Flask
-- HTML, CSS, and Bootstrap
 - SQLite
 - Werkzeug password hashing
+- HTML, CSS, and Bootstrap
 - pytest
 - Docker and Docker Compose
 - GitHub Actions
+
+## Prerequisites
+
+For local development:
+
+- Git
+- Python 3.12 or compatible
+- pip
+
+For containerized execution:
+
+- Docker Desktop with Docker Compose
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/valentinagl9/social-media-mvp.git
+cd social-media-mvp
+```
+
+### 2. Create and activate a virtual environment
+
+On macOS or Linux:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+## Configuration
+
+The application reads `SECRET_KEY` from the environment. If it is not set, the development configuration uses a placeholder key that must not be used in production.
+
+For local development, you can set a temporary key in your terminal:
+
+```bash
+export SECRET_KEY="replace-with-a-local-development-secret"
+```
+
+Do not commit real secrets, passwords, or credentials to Git.
+
+The SQLite database is stored at `instance/social_media.sqlite`. The application creates the instance directory when it initializes.
+
+## Run the Application Locally
+
+From the project root, with the virtual environment activated:
+
+```bash
+flask --app app:create_app run --debug
+```
+
+Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser.
+
+Stop the local development server with `Ctrl+C`.
+
+## Running Automated Tests
+
+Run the full test suite from the project root:
+
+```bash
+pytest
+```
+
+Run an individual test module:
+
+```bash
+pytest tests/test_registration.py
+pytest tests/test_login.py
+pytest tests/test_logout.py
+pytest tests/test_posts.py
+pytest tests/test_feed.py
+pytest tests/test_persistence.py
+```
+
+The tests cover registration, login, logout, post creation, rejection of unauthenticated post creation, public feed behavior, and data persistence.
+
+## Run with Docker
+
+Make sure Docker Desktop is running.
+
+Build the image and start the application:
+
+```bash
+docker compose up --build -d
+```
+
+The Compose configuration maps host port `5001` to container port `5000`. Open [http://localhost:5001](http://localhost:5001).
+
+View the container status:
+
+```bash
+docker compose ps
+```
+
+View application logs:
+
+```bash
+docker compose logs web
+```
+
+Stop the application:
+
+```bash
+docker compose down
+```
+
+### Docker data persistence
+
+Docker Compose uses a named volume, `social_media_data`, mounted at `/app/instance` inside the container. The SQLite database is stored in this directory so that accounts and posts survive ordinary container recreation while the volume is retained.
+
+Do not run `docker compose down -v` unless you intend to delete the Compose volume and its stored data.
+
+### Docker configuration
+
+The Compose service reads `SECRET_KEY` from the environment. If it is not supplied, the Compose configuration uses a development-only placeholder.
+
+For local use, you can export a value before starting Compose:
+
+```bash
+export SECRET_KEY="replace-with-a-local-development-secret"
+docker compose up --build -d
+```
+
+Use a strong, securely managed secret in production. Never commit real secret values to the repository.
+
+## Continuous Integration
+
+GitHub Actions runs the CI workflow on pushes and pull requests. The workflow:
+
+1. Checks out the repository.
+2. Sets up Python 3.12.
+3. Installs dependencies from `requirements.txt`.
+4. Runs the automated test suite with `pytest`.
+5. Builds the Docker image.
+
+Check the **Actions** tab in the GitHub repository to view workflow results.
 
 ## Project Documentation
 
@@ -44,100 +187,28 @@ The project uses an Agile approach to organize work incrementally.
 
 GitHub Issues records the user stories, while GitHub Projects tracks their status and planned iteration.
 
-The current workflow is:
+The workflow is:
 
 `Backlog → Todo → In Progress → Testing → Done`
 
-Iteration labels group the planned work:
+Planned iterations:
 
 - `Sprint 1` — Foundation and Authentication
 - `Sprint 2` — Posts and Feed
 - `Sprint 3` — Persistence and Docker
 - `Sprint 4` — Quality and Delivery
 
-## Prerequisites
-
-The following tools will be required to run the completed application:
-
-- Git
-- Python, using the version specified by the project configuration
-- pip
-- Docker Desktop with Docker Compose
-
-## Setup and Execution
-
-**The following instructions will be finalized after the application structure and dependencies are implemented.**
-
-The intended workflow is:
-
-1. Clone the repository.
-2. Set up the Python environment and install dependencies.
-3. Configure the required environment variables, if any.
-4. Start the application locally or with Docker Compose.
-5. Open the application using the local address documented by the application.
-
-Exact commands will be added after the implementation is ready.
-
-## Running Automated Tests
-
-The application uses `pytest` to run automated tests for its core functionality.
-
-### Prerequisites
-
-- Python 3.12 or compatible.
-- Project dependencies installed.
-
-### Setup
-
-Activate your virtual environment and install the dependencies:
-
-```bash
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-### Run all tests
-
-From the project root, run:
-
-```bash
-pytest
-```
-
-### Run a specific test module
-
-For example:
-
-```bash
-pytest tests/test_registration.py
-pytest tests/test_login.py
-pytest tests/test_posts.py
-pytest tests/test_feed.py
-pytest tests/test_persistence.py
-```
-
-The test suite covers user registration and login, post creation, rejection of unauthenticated post creation, public feed behavior, and data persistence.
-
-## Continuous Integration
-
-A GitHub Actions workflow will be configured to install dependencies, run tests, and build the Docker image on push.
-
-## Data Persistence
-
-The application will use SQLite. Docker Compose will configure persistent database storage so that ordinary application restarts do not delete accounts and posts when the database volume is retained.
-
 ## Scope
 
-The MVP focuses on authentication, text posts, and a public feed.
-
-Features such as likes, comments, following, direct messages, and notifications are outside the initial scope.
+The MVP focuses on authentication, text posts, and a public feed. Likes, comments, following, direct messages, and notifications are outside the initial scope.
 
 ## Security Notes
 
-- Passwords must be stored as secure hashes.
-- User input must be validated and safely rendered.
-- Secrets and local database files must not be committed to the repository.
-- Production deployment and high-scale operation are outside the initial academic MVP scope.
+- Passwords are stored as secure hashes.
+- The application should validate user input and safely render content.
+- Local databases, environment files, and real secrets must not be committed.
+- The development secret fallback is not suitable for production.
+- Production hardening and high-scale deployment are outside the initial academic MVP scope.
 
 ## License
 
