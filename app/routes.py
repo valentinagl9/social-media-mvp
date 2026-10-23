@@ -103,6 +103,20 @@ def home():
         username=session["username"],
         posts=posts,
     )
+    
+
+@main.route("/feed")
+def feed():
+    posts = get_db().execute(
+        """
+        SELECT posts.content, posts.created_at, users.username
+        FROM posts
+        JOIN users ON posts.user_id = users.id
+        ORDER BY posts.id DESC
+        """
+    ).fetchall()
+
+    return render_template("feed.html", posts=posts)
 
 
 @main.route("/logout", methods=["POST"])

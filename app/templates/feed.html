@@ -1,0 +1,30 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Public Feed</title>
+</head>
+<body>
+    <main>
+        <h1>Public Feed</h1>
+
+        <nav>
+            <a href="{{ url_for('main.login') }}">Log in</a>
+            <a href="{{ url_for('main.register') }}">Register</a>
+        </nav>
+
+        {% for post in posts %}
+            <article>
+                <p>{{ post["content"] }}</p>
+                <small>
+                    By {{ post["username"] }} · {{ post["created_at"] }}
+                </small>
+            </article>
+        {% else %}
+            <p>No posts yet.</p>
+        {% endfor %}
+    </main>
+</body>
+</html>
