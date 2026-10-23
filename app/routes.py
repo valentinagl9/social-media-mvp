@@ -88,7 +88,21 @@ def home():
         flash("Please log in to continue.", "error")
         return redirect(url_for("main.login"))
 
-    return render_template("home.html", username=session["username"])
+    db = get_db()
+    posts = db.execute(
+        """
+        SELECT posts.content, posts.created_at, users.username
+        FROM posts
+        JOIN users ON posts.user_id = users.id
+        ORDER BY posts.id DESC
+        """
+    ).fetchall()
+
+    return render_template(
+        "home.html",
+        username=session["username"],
+        posts=posts,
+    )
 
 
 @main.route("/logout", methods=["POST"])
@@ -96,3 +110,29 @@ def logout():
     session.clear()
     flash("You have been logged out.", "success")
     return redirect(url_for("main.login"))
+    
+
+@main.route("/posts/create", methods=["POST"])
+def create_post():
+    from flask import flash, redirect, request, session, url_for
+    from app.db import get_db
+
+    if "user_id" not in session:
+        return redirect(url_for("main.login"))
+
+    content = request.form.get("content", "").strip()
+
+    if not content:
+        flash("Post content cannot be empty.")
+        return redirect(url_for("main.home"))
+
+    db = get_db()
+    db.execute(
+        "INSERT INTO posts (user_id, content) VALUES (?, ?)",
+        (session["user_id"], content),
+    )
+    db.commit()
+
+    flash("Post created successfully.")
+    return redirect(url_for("main.home"))
+
