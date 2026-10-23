@@ -78,9 +78,45 @@ The intended workflow is:
 
 Exact commands will be added after the implementation is ready.
 
-## Running Tests
+## Running Automated Tests
 
-Automated tests will be implemented using pytest. The exact test command and configuration will be documented once they are available.
+The application uses `pytest` to run automated tests for its core functionality.
+
+### Prerequisites
+
+- Python 3.12 or compatible.
+- Project dependencies installed.
+
+### Setup
+
+Activate your virtual environment and install the dependencies:
+
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Run all tests
+
+From the project root, run:
+
+```bash
+pytest
+```
+
+### Run a specific test module
+
+For example:
+
+```bash
+pytest tests/test_registration.py
+pytest tests/test_login.py
+pytest tests/test_posts.py
+pytest tests/test_feed.py
+pytest tests/test_persistence.py
+```
+
+The test suite covers user registration and login, post creation, rejection of unauthenticated post creation, public feed behavior, and data persistence.
 
 ## Continuous Integration
 
