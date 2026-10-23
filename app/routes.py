@@ -1,7 +1,15 @@
 import sqlite3
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
-from werkzeug.security import generate_password_hash
+from flask import (
+    Blueprint,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.db import get_db
 
@@ -10,7 +18,9 @@ main = Blueprint("main", __name__)
 
 @main.route("/")
 def index():
-    return redirect(url_for("main.register"))
+    if session.get("user_id"):
+        return redirect(url_for("main.home"))
+    return redirect(url_for("main.login"))
 
 
 @main.route("/register", methods=["GET", "POST"])
@@ -44,6 +54,38 @@ def register():
             return render_template("register.html"), 409
 
         flash("Account created successfully. You can now log in.", "success")
-        return redirect(url_for("main.register"))
+        return redirect(url_for("main.login"))
 
     return render_template("register.html")
+
+
+@main.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+
+        user = get_db().execute(
+            "SELECT id, username, password_hash FROM users WHERE username = ?",
+            (username,),
+        ).fetchone()
+
+        if user is None or not check_password_hash(user["password_hash"], password):
+            flash("Invalid username or password.", "error")
+            return render_template("login.html"), 401
+
+        session.clear()
+        session["user_id"] = user["id"]
+        session["username"] = user["username"]
+        return redirect(url_for("main.home"))
+
+    return render_template("login.html")
+
+
+@main.route("/home")
+def home():
+    if not session.get("user_id"):
+        flash("Please log in to continue.", "error")
+        return redirect(url_for("main.login"))
+
+    return render_template("home.html", username=session["username"])
